@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -10,9 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"sync"
 	"text/template"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -28,29 +26,53 @@ func (t *TemplateRender) Render(w io.Writer, name string, data interface{}, c ec
 
 var (
 	maxPage int
-	mutex   sync.Mutex
+)
+
+const (
+	CutDirName    = "cut"
+	CutDirPath    = "./cut"
+	MergeDirName  = "merge"
+	MergeDirPath  = "./merge"
+	UpLoadDirName = "upload"
+	UpLoadDirPath = "./upload"
+	// PythonPath    = "/opt/venv/bin/python3"
+	PythonPath = "python3.11"
 )
 
 func main() {
-	_, err := os.Stat("cut")
+	userNameFlag := flag.String("user", "user", "BasicAuth user flag")
+	passwordFlag := flag.String("password", "password", "BasicAuth password flag")
+
+	flag.Parse()
+
+	_, err := os.Stat(CutDirName)
 	if err != nil {
-		err = os.Mkdir("cut", 0755)
+		err = os.Mkdir(CutDirName, 0755)
 		if err != nil {
 			log.Printf("[error] os.Mkdir cut: %v\n", err)
 			os.Exit(0)
 		}
 	}
 
-	_, err = os.Stat("merge")
+	_, err = os.Stat(MergeDirName)
 	if err != nil {
-		err = os.Mkdir("merge", 0755)
+		err = os.Mkdir(MergeDirName, 0755)
 		if err != nil {
 			log.Printf("[error] os.Mkdir merge: %v\n", err)
 			os.Exit(0)
 		}
 	}
 
-	cuts, err := filepath.Glob("./cut/*.pdf")
+	_, err = os.Stat(UpLoadDirName)
+	if err != nil {
+		err = os.Mkdir(UpLoadDirName, 0755)
+		if err != nil {
+			log.Printf("[error] os.Mkdir upload: %v\n", err)
+			os.Exit(0)
+		}
+	}
+
+	cuts, err := filepath.Glob(CutDirPath + "/*.pdf")
 	if err != nil {
 		log.Printf("[error] filepath.Glob cut : %v\n", err)
 	} else if len(cuts) != 0 {
@@ -62,7 +84,7 @@ func main() {
 		}
 	}
 
-	merge, err := filepath.Glob("./merge/*.pdf")
+	merge, err := filepath.Glob(MergeDirPath + "/*.pdf")
 	if err != nil {
 		log.Printf("[error] filepath.Glob merge: %v\n", err)
 	} else if len(merge) != 0 {
@@ -74,13 +96,18 @@ func main() {
 		}
 	}
 
-	time.Sleep(2 * time.Second)
-
-	cmd := exec.Command("/opt/venv/bin/python3", "pdf-cut.py", os.Args[1])
-	err = cmd.Start()
+	upload, err := filepath.Glob(UpLoadDirPath + "/*.pdf")
 	if err != nil {
-		os.Exit(0)
+		log.Printf("[error] filepath.Glob upload: %v\n", err)
+	} else if len(merge) != 0 {
+		for _, f := range upload {
+			err = os.Remove(f)
+			if err != nil {
+				log.Printf("[error] os.Remove upload: %v\n", err)
+			}
+		}
 	}
+
 	e := echo.New()
 
 	e.Use(middleware.Recover())
@@ -100,64 +127,33 @@ func main() {
 	}
 	e.Renderer = renderer
 
-	e.Static("/merge", "merge")
+	e.Static("/"+MergeDirName, MergeDirName)
 
-	e.GET("/", index)
-	// e.GET("/pdf/:page", pdf)
-	e.GET("/pdf", pdf)
+	e.GET("/", Index)
+	e.GET("/pdf", ShowPDF)
 
-	// goroutineで入力受付
-	go func() {
-		time.Sleep(2 * time.Second)
-		reader := bufio.NewReader(os.Stdin)
-		for {
-			fmt.Print("Enter max page number: ")
-			input, _ := reader.ReadString('\n')
-			input = input[:len(input)-1] // 改行を取り除く
-			if num, err := strconv.Atoi(input); err == nil {
-				mutex.Lock()
-				maxPage = num
-				mutex.Unlock()
+	m := e.Group("/management")
 
-				merge, err := filepath.Glob("./merge/*.pdf")
-				if err != nil {
-					log.Printf("[error] filepath.Glob : %v\n", err)
-				} else if len(merge) != 0 {
-					for _, f := range merge {
-						err = os.Remove(f)
-						if err != nil {
-							log.Printf("[error] os.Remove merge: %v\n", err)
-						}
-					}
-				}
-				page := strconv.Itoa(maxPage)
-				cmd := exec.Command("python3.11", "pdf-merge.py", page)
-				err = cmd.Start()
-				if err != nil {
-					log.Printf("[error] exec.Command: %v\n", err)
-				}
-				fmt.Printf("The maximum page has been updated. %d\n", maxPage)
-			} else {
-				fmt.Println("Please enter an integer.")
-			}
+	m.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+		if username == *userNameFlag && password == *passwordFlag {
+			return true, nil
 		}
-	}()
+		return false, nil
+	}))
 
-	// サーバーの起動
-	go func() {
-		e.Logger.Fatal(e.Start(":8080"))
-	}()
+	m.GET("", Management)
+	m.POST("/maxpage", ChangeMaxPage)
+	m.POST("/upload", UpLoad)
 
-	// メインgoroutineを停止させない
-	select {}
+	e.Logger.Fatal(e.Start(":8080"))
 }
 
-func index(c echo.Context) error {
+func Index(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", nil)
 }
 
-func pdf(c echo.Context) error {
-	pdfPath := filepath.Join("./merge", "merge.pdf")
+func ShowPDF(c echo.Context) error {
+	pdfPath := filepath.Join(MergeDirPath, "merge.pdf")
 	if _, err := os.ReadFile(pdfPath); err != nil {
 		data := map[string]string{
 			"Message": fmt.Sprintln("ページが見つかりませんでした"),
@@ -166,10 +162,109 @@ func pdf(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "pdf-view.html", map[string]interface{}{
-		"PDFPath": "/merge/merge.pdf",
+		"PDFPath": "/" + MergeDirName + "/merge.pdf",
 	})
 }
 
-// func management(c echo.Context) error {
+func Management(c echo.Context) error {
+	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
+		"CurrentPage": maxPage,
+	})
+}
 
-// }
+func ChangeMaxPage(c echo.Context) error {
+	mp := c.FormValue("maxpage")
+
+	var err error
+	maxPage, err = strconv.Atoi(mp)
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("整数以外が入力されました。: %v\n", err),
+		}
+		return c.Render(http.StatusNotFound, "management.html", data)
+	}
+
+	merge, err := filepath.Glob(MergeDirPath + "/*.pdf")
+	if err != nil {
+		log.Printf("[error] filepath.Glob : %v\n", err)
+	} else if len(merge) != 0 {
+		for _, f := range merge {
+			err = os.Remove(f)
+			if err != nil {
+				log.Printf("[error] os.Remove merge: %v\n", err)
+			}
+		}
+	}
+	cmd := exec.Command(PythonPath, "pdf-merge.py", mp)
+	err = cmd.Start()
+	if err != nil {
+		log.Printf("[error] exec.Command: %v\n", err)
+	}
+	fmt.Printf("The maximum page has been updated. %d\n", maxPage)
+
+	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
+		"Message":     fmt.Sprintln("最大ページを更新しました。"),
+		"CurrentPage": maxPage,
+	})
+}
+
+func UpLoad(c echo.Context) error {
+	file, err := c.FormFile("file")
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルのアップロードに失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusBadRequest, "message.html", data)
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルの展開に失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "message.html", data)
+	}
+	defer src.Close()
+
+	_, err = os.Stat(UpLoadDirName)
+	if err != nil {
+		err = os.Mkdir(UpLoadDirName, 0755)
+		if err != nil {
+			log.Printf("[error] os.Mkdir upload: %v\n", err)
+			data := map[string]string{
+				"Message": fmt.Sprintf("アップロード先のディレクトリ作成に失敗しました。 %v\n", err),
+			}
+			return c.Render(http.StatusServiceUnavailable, "message.html", data)
+		}
+	}
+
+	dst, err := os.Create(filepath.Join(UpLoadDirPath, "upload.pdf"))
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルの作成に失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "message.html", data)
+	}
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルのコピーに失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "message.html", data)
+	}
+
+	cmd := exec.Command(PythonPath, "pdf-cut.py", UpLoadDirPath+"/upload.pdf")
+	err = cmd.Start()
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルのカットに失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "message.html", data)
+	}
+
+	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
+		"Message":     fmt.Sprintln("ファイルのアップロードが完了しました。"),
+		"CurrentPage": maxPage,
+	})
+}
