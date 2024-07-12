@@ -15,4 +15,4 @@ docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -p 8080:8080 -d kiso-la
 - 自動サーバー起動時にパスワードのフラグどうするか ok
 - merge.pdfが更新されたら、/pdfのページを自動更新したい
 - 質問機能
-- 運営からのメッセージ機能
+- 運営からのメッセージ機能 ok

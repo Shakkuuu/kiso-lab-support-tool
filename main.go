@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io"
@@ -10,11 +11,19 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"text/template"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+type Message struct {
+	Title   string
+	Date    string
+	Content string
+}
 
 type TemplateRender struct {
 	templates *template.Template
@@ -36,6 +45,7 @@ const (
 	UpLoadDirName = "upload"
 	UpLoadDirPath = "./upload"
 	PythonPath    = "/opt/venv/bin/python3"
+	// PythonPath = "python3.11"
 )
 
 func main() {
@@ -67,6 +77,15 @@ func main() {
 		err = os.Mkdir(UpLoadDirName, 0755)
 		if err != nil {
 			log.Printf("[error] os.Mkdir upload: %v\n", err)
+			os.Exit(0)
+		}
+	}
+
+	_, err = os.Stat("message.txt")
+	if err != nil {
+		_, err = os.Create("message.txt")
+		if err != nil {
+			log.Printf("[error] os.Create message: %v\n", err)
 			os.Exit(0)
 		}
 	}
@@ -131,6 +150,7 @@ func main() {
 
 	e.GET("/", Index)
 	e.GET("/pdf", ShowPDF)
+	e.GET("/message", ShowMessage)
 
 	m := e.Group("/management")
 
@@ -144,6 +164,7 @@ func main() {
 	m.GET("", Management)
 	m.POST("/maxpage", ChangeMaxPage)
 	m.POST("/upload", UpLoad)
+	m.POST("/addmessage", AddMessage)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
@@ -265,6 +286,83 @@ func UpLoad(c echo.Context) error {
 
 	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
 		"Message":     fmt.Sprintln("ファイルのアップロードが完了しました。"),
+		"CurrentPage": maxPage,
+	})
+}
+
+func ShowMessage(c echo.Context) error {
+	file, err := os.Open("message.txt")
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("メッセージファイルの展開に失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+	defer file.Close()
+
+	var messages []Message
+	scanner := bufio.NewScanner(file)
+	var currentMessage *Message
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "TITLE:") {
+			if currentMessage != nil {
+				messages = append(messages, *currentMessage)
+			}
+			currentMessage = &Message{Title: line}
+		} else if strings.HasPrefix(line, "DATE:") {
+			currentMessage.Date = line
+		} else if currentMessage != nil {
+			if currentMessage.Content != "" {
+				currentMessage.Content += "\n"
+			}
+			currentMessage.Content += line
+		}
+	}
+	if currentMessage != nil {
+		messages = append(messages, *currentMessage)
+	}
+	if err := scanner.Err(); err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("メッセージスキャンに失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+
+	return c.Render(http.StatusOK, "message.html", map[string]interface{}{
+		"Message": messages,
+	})
+}
+
+func AddMessage(c echo.Context) error {
+	title := c.FormValue("title")
+	content := c.FormValue("content")
+
+	file, err := os.OpenFile("message.txt", os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("メッセージファイルの展開に失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+	defer file.Close()
+
+	jst, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("タイムゾーン変換に失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+	nowJST := time.Now().In(jst)
+
+	fmt.Fprintln(file, "TITLE: "+title)
+	fmt.Fprintln(file, "DATE: "+nowJST.Format(time.DateTime))
+	fmt.Fprintln(file, content)
+	fmt.Fprintln(file, "")
+
+	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
+		"Message":     fmt.Sprintln("メッセージの追記に成功しました。"),
 		"CurrentPage": maxPage,
 	})
 }

@@ -10,15 +10,24 @@
     <div class="container">
         <h1>management</h1>
         <p>{{.Message}}</p>
+        <h3>最大ページ更新</h3>
         <form method="POST" action="/management/maxpage">
             <input type="number" id="maxpage" name="maxpage" value="{{.CurrentPage}}" min="1">
             <input type="submit" value="Change Max Page">
         </form>
+        <h3>ファイルアップロード</h3>
         <form id="form" enctype="multipart/form-data" action="/management/upload" method="POST">
             <input type="file" id="file" name="file" accept=".pdf">
             <button class="button" type="submit">upload</button>
         </form>
+        <h3>メッセージ送信</h3>
+        <form method="POST" action="/management/addmessage">
+            <input type="text" id="title" name="title" placeholder="Title"><br>
+            <textarea id="content" name="content" placeholder="Content"></textarea><br>
+            <button type="submit">sent</button>
+        </form>
         <p><a href="/pdf">pdf</a></p>
+        <p><a href="/message">message</a></p>
         <p><a href="/">index</a></p>
     </div>
 </body>

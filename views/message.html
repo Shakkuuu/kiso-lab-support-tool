@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>index</title>
+    <title>Message</title>
     <link rel="stylesheet" href="/views/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>index</h1>
+        <h1>Message</h1>
         <p><a href="/pdf">pdf</a></p>
-        <p><a href="/message">message</a></p>
-        <p><a href="/management">management</a></p>
+        <p><a href="/">index</a></p>
+        {{range $v := .Message}}
+        <div class="section">
+            <h2>{{$v.Title}}</h2>
+            <h3>{{$v.Date}}</h3>
+            <pre>{{$v.Content}}</pre>
+        </div>
+        {{end}}
     </div>
 </body>
 </html>

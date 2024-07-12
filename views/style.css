@@ -1,4 +1,4 @@
-body, h1, p, a, form {
+body, h1, h2, h3, p, a, form {
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
@@ -12,6 +12,14 @@ body {
 }
 
 h1 {
+    color: #555;
+}
+
+h2 {
+    color: #555;
+}
+
+h3 {
     color: #555;
 }
 
@@ -37,6 +45,13 @@ form {
     margin-top: 20px;
 }
 
+textarea {
+    width: 100%;
+    height: 200px;
+    resize: vertical;
+}
+
+input[type="text"],
 input[type="number"],
 input[type="file"],
 input[type="submit"],
@@ -72,4 +87,10 @@ button:hover {
     width: 100%;
     height: 100%;
     border: none;
+}
+
+.section {
+    border: 1px solid #000;
+    padding: 10px;
+    margin: 10px 0;
 }
