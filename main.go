@@ -159,7 +159,7 @@ func ShowPDF(c echo.Context) error {
 		data := map[string]string{
 			"Message": fmt.Sprintln("ページが見つかりませんでした"),
 		}
-		return c.Render(http.StatusNotFound, "message.html", data)
+		return c.Render(http.StatusNotFound, "error.html", data)
 	}
 
 	return c.Render(http.StatusOK, "pdf-view.html", map[string]interface{}{
@@ -215,7 +215,7 @@ func UpLoad(c echo.Context) error {
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルのアップロードに失敗しました。 %v\n", err),
 		}
-		return c.Render(http.StatusBadRequest, "message.html", data)
+		return c.Render(http.StatusBadRequest, "error.html", data)
 	}
 
 	src, err := file.Open()
@@ -223,7 +223,7 @@ func UpLoad(c echo.Context) error {
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルの展開に失敗しました。 %v\n", err),
 		}
-		return c.Render(http.StatusServiceUnavailable, "message.html", data)
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
 	defer src.Close()
 
@@ -235,7 +235,7 @@ func UpLoad(c echo.Context) error {
 			data := map[string]string{
 				"Message": fmt.Sprintf("アップロード先のディレクトリ作成に失敗しました。 %v\n", err),
 			}
-			return c.Render(http.StatusServiceUnavailable, "message.html", data)
+			return c.Render(http.StatusServiceUnavailable, "error.html", data)
 		}
 	}
 
@@ -244,7 +244,7 @@ func UpLoad(c echo.Context) error {
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルの作成に失敗しました。 %v\n", err),
 		}
-		return c.Render(http.StatusServiceUnavailable, "message.html", data)
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
 
 	_, err = io.Copy(dst, src)
@@ -252,7 +252,7 @@ func UpLoad(c echo.Context) error {
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルのコピーに失敗しました。 %v\n", err),
 		}
-		return c.Render(http.StatusServiceUnavailable, "message.html", data)
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
 
 	cmd := exec.Command(PythonPath, "pdf-cut.py", UpLoadDirPath+"/upload.pdf")
@@ -261,7 +261,7 @@ func UpLoad(c echo.Context) error {
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルのカットに失敗しました。 %v\n", err),
 		}
-		return c.Render(http.StatusServiceUnavailable, "message.html", data)
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
 
 	return c.Render(http.StatusOK, "management.html", map[string]interface{}{

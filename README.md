@@ -3,6 +3,10 @@
 ## 使い方？
 
 ```shell
+docker image build -t kiso-lab-support-tool .
+```
+
+```shell
 docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -p 8080:8080 -d kiso-lab-support-tool
 ```
 
