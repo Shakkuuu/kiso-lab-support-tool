@@ -35,8 +35,7 @@ const (
 	MergeDirPath  = "./merge"
 	UpLoadDirName = "upload"
 	UpLoadDirPath = "./upload"
-	// PythonPath    = "/opt/venv/bin/python3"
-	PythonPath = "python3.11"
+	PythonPath    = "/opt/venv/bin/python3"
 )
 
 func main() {
