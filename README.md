@@ -3,7 +3,7 @@
 ## 使い方？
 
 ```shell
-docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -p 8080:8080 kiso-lab-support-tool
+docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -p 8080:8080 -d kiso-lab-support-tool
 ```
 
 - 汎用的CSSを使って、見た目よく ok
