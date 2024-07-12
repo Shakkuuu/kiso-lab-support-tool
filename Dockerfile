@@ -18,3 +18,5 @@ RUN go build -o main .
 
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+CMD ./main -user $USER_ENV -password $PASSWORD_ENV
