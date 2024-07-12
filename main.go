@@ -25,7 +25,7 @@ func (t *TemplateRender) Render(w io.Writer, name string, data interface{}, c ec
 }
 
 var (
-	maxPage int
+	maxPage int = 1
 )
 
 const (
@@ -128,6 +128,7 @@ func main() {
 	e.Renderer = renderer
 
 	e.Static("/"+MergeDirName, MergeDirName)
+	e.Static("/views", "views")
 
 	e.GET("/", Index)
 	e.GET("/pdf", ShowPDF)

@@ -4,28 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PDF表示</title>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-        .pdf-container {
-            width: 90%;
-            height: 90vh;
-            overflow: hidden;
-        }
-        .pdf-embed {
-            width: 90%;
-            height: 90%;
-            border: none;
-        }
-    </style>
+    <link rel="stylesheet" href="/views/style.css">
 </head>
 <body>
-    <h1>PDF表示</h1>
-    <p><a href="/">index</a></p>
-    <div class="pdf-container">
-        <embed class="pdf-embed" src="{{.PDFPath}}" type="application/pdf">
+    <div class="container">
+        <h1>PDF表示</h1>
+        <p><a href="/">index</a></p>
+        <div class="pdf-container">
+            <embed class="pdf-embed" src="{{.PDFPath}}" type="application/pdf">
+        </div>
     </div>
 </body>
 </html>

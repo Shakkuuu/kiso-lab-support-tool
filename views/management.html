@@ -4,25 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>management</title>
+    <link rel="stylesheet" href="/views/style.css">
 </head>
 <body>
-    <h1>management</h1>
-
-    <p>{{.Message}}</p>
-
-    <form method="POST" action="/management/maxpage">
-		<input type="number" id="maxpage" name="maxpage" value="{{.CurrentPage}}" min="1">
-		<input type="submit" value="Change Max Page">
-	</form>
-
-    <br>
-
-    <form id="form" enctype="multipart/form-data" action="/management/upload" method="POST">
-        <input type="file" id="file" name="file" accept=".pdf">
-        <button class="button" type="submit">upload</button>
-    </form>
-
-    <p><a href="/pdf">pdf</a></p>
-    <p><a href="/">index</a></p>
+    <div class="container">
+        <h1>management</h1>
+        <p>{{.Message}}</p>
+        <form method="POST" action="/management/maxpage">
+            <input type="number" id="maxpage" name="maxpage" value="{{.CurrentPage}}" min="1">
+            <input type="submit" value="Change Max Page">
+        </form>
+        <form id="form" enctype="multipart/form-data" action="/management/upload" method="POST">
+            <input type="file" id="file" name="file" accept=".pdf">
+            <button class="button" type="submit">upload</button>
+        </form>
+        <p><a href="/pdf">pdf</a></p>
+        <p><a href="/">index</a></p>
+    </div>
 </body>
 </html>
