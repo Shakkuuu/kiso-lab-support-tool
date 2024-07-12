@@ -88,6 +88,17 @@ func main() {
 			log.Printf("[error] os.Create message: %v\n", err)
 			os.Exit(0)
 		}
+	} else {
+		err = os.Remove("message.txt")
+		if err != nil {
+			log.Printf("[error] os.Remove message: %v\n", err)
+			os.Exit(0)
+		}
+		_, err = os.Create("message.txt")
+		if err != nil {
+			log.Printf("[error] os.Create message: %v\n", err)
+			os.Exit(0)
+		}
 	}
 
 	cuts, err := filepath.Glob(CutDirPath + "/*.pdf")
