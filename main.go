@@ -58,6 +58,7 @@ const (
 func main() {
 	userNameFlag := flag.String("user", "user", "BasicAuth user flag")
 	passwordFlag := flag.String("password", "password", "BasicAuth password flag")
+	portFlag := flag.Int("port", 8080, "Port flag")
 
 	flag.Parse()
 
@@ -201,7 +202,9 @@ func main() {
 	m.POST("/upload", UpLoad)
 	m.POST("/addmessage", AddMessage)
 
-	e.Logger.Fatal(e.Start(":8080"))
+	port := strconv.Itoa(*portFlag)
+
+	e.Logger.Fatal(e.Start(":" + port))
 }
 
 func Index(c echo.Context) error {

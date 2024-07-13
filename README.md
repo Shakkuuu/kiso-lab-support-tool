@@ -12,10 +12,11 @@ DockerHubから持ってくる
 docker pull shakku/kiso-lab-support-tool
 ```
 
-持ってきたimageでコンテナ起動
+持ってきたimageでコンテナ起動。
+環境変数指定でBasicAuthのユーザとパスワードをstringで指定し、サーバ起動ポートをintで指定する。
 
 ```shell
-docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -p 8080:8080 -d kiso-lab-support-tool
+docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -e PORT_ENV=8080 -p 8080:8080 -d shakku/kiso-lab-support-tool
 ```
 
 #### buildからする場合
@@ -32,10 +33,11 @@ build
 docker image build -t kiso-lab-support-tool .
 ```
 
-作成したimageでコンテナ起動
+作成したimageでコンテナ起動。
+環境変数指定でBasicAuthのユーザとパスワードをstringで指定し、サーバ起動ポートをintで指定する。
 
 ```shell
-docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -p 8080:8080 -d kiso-lab-support-tool
+docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -e PORT_ENV=8080 -p 8080:8080 -d kiso-lab-support-tool
 ```
 
 ### goコマンドで実行する場合
@@ -47,8 +49,10 @@ pypdfというパッケージを使用しているため、環境に合わせて
 PythonPath = "python3"
 ```
 
+引数でBasicAuthのユーザとパスワードをstringで指定し、サーバ起動ポートをintで指定する。
+
 ```shell
-go run main.go -user ユーザー名 -password パスワード
+go run main.go -user user -password password -port 8080
 ```
 
 ## メモ
@@ -59,4 +63,4 @@ go run main.go -user ユーザー名 -password パスワード
 - merge.pdfが更新されたら、/pdfのページを自動更新したい ok
 - 質問機能
 - 運営からのメッセージ機能 ok
-- 実行ポートをフラグで指定
+- 実行ポートをフラグで指定 ok
