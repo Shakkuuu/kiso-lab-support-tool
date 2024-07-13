@@ -65,8 +65,8 @@ func main() {
 	if err != nil {
 		err = os.Mkdir(CutDirName, 0755)
 		if err != nil {
-			log.Printf("[error] os.Mkdir cut: %v\n", err)
-			os.Exit(0)
+			log.Printf("[error] main os.Mkdir cut: %v\n", err)
+			os.Exit(1)
 		}
 	}
 
@@ -74,8 +74,8 @@ func main() {
 	if err != nil {
 		err = os.Mkdir(MergeDirName, 0755)
 		if err != nil {
-			log.Printf("[error] os.Mkdir merge: %v\n", err)
-			os.Exit(0)
+			log.Printf("[error] main os.Mkdir merge: %v\n", err)
+			os.Exit(1)
 		}
 	}
 
@@ -83,8 +83,8 @@ func main() {
 	if err != nil {
 		err = os.Mkdir(UpLoadDirName, 0755)
 		if err != nil {
-			log.Printf("[error] os.Mkdir upload: %v\n", err)
-			os.Exit(0)
+			log.Printf("[error] main os.Mkdir upload: %v\n", err)
+			os.Exit(1)
 		}
 	}
 
@@ -92,63 +92,78 @@ func main() {
 	if err != nil {
 		_, err = os.Create("message.txt")
 		if err != nil {
-			log.Printf("[error] os.Create message: %v\n", err)
-			os.Exit(0)
+			log.Printf("[error] main os.Create message: %v\n", err)
+			os.Exit(1)
 		}
 	} else {
 		err = os.Remove("message.txt")
 		if err != nil {
-			log.Printf("[error] os.Remove message: %v\n", err)
-			os.Exit(0)
+			log.Printf("[error] main os.Remove message: %v\n", err)
+			os.Exit(1)
 		}
 		_, err = os.Create("message.txt")
 		if err != nil {
-			log.Printf("[error] os.Create message: %v\n", err)
-			os.Exit(0)
+			log.Printf("[error] main os.Create message: %v\n", err)
+			os.Exit(1)
 		}
 	}
 
 	cuts, err := filepath.Glob(CutDirPath + "/*.pdf")
 	if err != nil {
-		log.Printf("[error] filepath.Glob cut : %v\n", err)
+		log.Printf("[error] main filepath.Glob cut : %v\n", err)
+		os.Exit(1)
 	} else if len(cuts) != 0 {
 		for _, f := range cuts {
 			err = os.Remove(f)
 			if err != nil {
-				log.Printf("[error] os.Remove cut: %v\n", err)
+				log.Printf("[error] main os.Remove cut: %v\n", err)
+				os.Exit(1)
 			}
 		}
 	}
 
 	merge, err := filepath.Glob(MergeDirPath + "/*.pdf")
 	if err != nil {
-		log.Printf("[error] filepath.Glob merge: %v\n", err)
+		log.Printf("[error] main filepath.Glob merge: %v\n", err)
+		os.Exit(1)
 	} else if len(merge) != 0 {
 		for _, f := range merge {
 			err = os.Remove(f)
 			if err != nil {
-				log.Printf("[error] os.Remove merge: %v\n", err)
+				log.Printf("[error] main os.Remove merge: %v\n", err)
+				os.Exit(1)
 			}
 		}
 	}
 
 	upload, err := filepath.Glob(UpLoadDirPath + "/*.pdf")
 	if err != nil {
-		log.Printf("[error] filepath.Glob upload: %v\n", err)
+		log.Printf("[error] main filepath.Glob upload: %v\n", err)
+		os.Exit(1)
 	} else if len(merge) != 0 {
 		for _, f := range upload {
 			err = os.Remove(f)
 			if err != nil {
-				log.Printf("[error] os.Remove upload: %v\n", err)
+				log.Printf("[error] main os.Remove upload: %v\n", err)
+				os.Exit(1)
 			}
 		}
+	}
+
+	echo.NotFoundHandler = func(c echo.Context) error {
+		return c.Render(http.StatusNotFound, "404.html", nil)
+	}
+
+	echo.MethodNotAllowedHandler = func(c echo.Context) error {
+		return c.Render(http.StatusMethodNotAllowed, "405.html", nil)
 	}
 
 	e := echo.New()
 
 	e.Use(middleware.Recover())
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: `time: ${time_rfc3339_nano}` + ", " +
+		Format: `[access] ` +
+			`time: ${time_rfc3339_nano}` + ", " +
 			`method: ${method}` + ", " +
 			`remote_ip: ${remote_ip}` + ", " +
 			`host: ${host}` + ", " +
@@ -196,6 +211,7 @@ func Index(c echo.Context) error {
 func ShowPDF(c echo.Context) error {
 	pdfPath := filepath.Join(MergeDirPath, "merge.pdf")
 	if _, err := os.ReadFile(pdfPath); err != nil {
+		log.Printf("[error] ShowPDF os.ReadFile merge : %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintln("ファイルがまだアップロードされていません。"),
 		}
@@ -219,20 +235,30 @@ func ChangeMaxPage(c echo.Context) error {
 	var err error
 	maxPage, err = strconv.Atoi(mp)
 	if err != nil {
-		data := map[string]string{
-			"Message": fmt.Sprintf("整数以外が入力されました。: %v\n", err),
+		log.Printf("[error] ChangeMaxPage strconv.Atoi maxPage : %v\n", err)
+		data := map[string]interface{}{
+			"Message":     fmt.Sprintf("整数以外が入力されました。: %v\n", err),
+			"CurrentPage": maxPage,
 		}
-		return c.Render(http.StatusNotFound, "management.html", data)
+		return c.Render(http.StatusBadRequest, "management.html", data)
 	}
 
 	merge, err := filepath.Glob(MergeDirPath + "/*.pdf")
 	if err != nil {
-		log.Printf("[error] filepath.Glob : %v\n", err)
+		log.Printf("[error] ChangeMaxPage filepath.Glob merge: %v\n", err)
+		data := map[string]string{
+			"Message": fmt.Sprintf("最大ページ更新処理に失敗しました。: %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	} else if len(merge) != 0 {
 		for _, f := range merge {
 			err = os.Remove(f)
 			if err != nil {
-				log.Printf("[error] os.Remove merge: %v\n", err)
+				log.Printf("[error] ChangeMaxPage os.Remove merge: %v\n", err)
+				data := map[string]string{
+					"Message": fmt.Sprintf("最大ページ更新処理に失敗しました。: %v\n", err),
+				}
+				return c.Render(http.StatusServiceUnavailable, "error.html", data)
 			}
 		}
 	}
@@ -245,12 +271,17 @@ func ChangeMaxPage(c echo.Context) error {
 	}(cmd)
 	output := <-ch
 	if string(output.Result) != "Done\n" {
+		log.Printf("[error] ChangeMaxPage exec.Command.CombinedOutput: %v\n", string(output.Result))
 		data := map[string]string{
-			"Message": fmt.Sprintf("ファイルのカットに失敗しました。 %v\n", err),
+			"Message": fmt.Sprintf("最大ページ更新処理に失敗しました。: %v\n", err),
 		}
 		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	} else if output.Err != nil {
-		log.Printf("[error] exec.Command: %v\n", err)
+		log.Printf("[error] ChangeMaxPage exec.Command.CombinedOutput: %v\n", err)
+		data := map[string]string{
+			"Message": fmt.Sprintf("最大ページ更新処理に失敗しました。: %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
 	fmt.Printf("The maximum page has been updated. %d\n", maxPage)
 
@@ -265,14 +296,17 @@ func ChangeMaxPage(c echo.Context) error {
 func UpLoad(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
-		data := map[string]string{
-			"Message": fmt.Sprintf("ファイルのアップロードに失敗しました。 %v\n", err),
+		log.Printf("[error] UpLoad c.FormFile: %v\n", err)
+		data := map[string]interface{}{
+			"Message":     fmt.Sprintf("ファイルのアップロードに失敗しました。 %v\n", err),
+			"CurrentPage": maxPage,
 		}
-		return c.Render(http.StatusBadRequest, "error.html", data)
+		return c.Render(http.StatusBadRequest, "management.html", data)
 	}
 
 	src, err := file.Open()
 	if err != nil {
+		log.Printf("[error] UpLoad file.Open: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルの展開に失敗しました。 %v\n", err),
 		}
@@ -282,9 +316,10 @@ func UpLoad(c echo.Context) error {
 
 	_, err = os.Stat(UpLoadDirName)
 	if err != nil {
+		log.Printf("[error] UpLoad os.Stat: %v\n", err)
 		err = os.Mkdir(UpLoadDirName, 0755)
 		if err != nil {
-			log.Printf("[error] os.Mkdir upload: %v\n", err)
+			log.Printf("[error] UpLoad os.Mkdir upload: %v\n", err)
 			data := map[string]string{
 				"Message": fmt.Sprintf("アップロード先のディレクトリ作成に失敗しました。 %v\n", err),
 			}
@@ -294,6 +329,7 @@ func UpLoad(c echo.Context) error {
 
 	dst, err := os.Create(filepath.Join(UpLoadDirPath, "upload.pdf"))
 	if err != nil {
+		log.Printf("[error] UpLoad os.Create upload: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルの作成に失敗しました。 %v\n", err),
 		}
@@ -302,6 +338,7 @@ func UpLoad(c echo.Context) error {
 
 	_, err = io.Copy(dst, src)
 	if err != nil {
+		log.Printf("[error] UpLoad io.Copy upload: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルのコピーに失敗しました。 %v\n", err),
 		}
@@ -316,11 +353,13 @@ func UpLoad(c echo.Context) error {
 	}(cmd)
 	output := <-ch
 	if string(output.Result) != "Done\n" {
+		log.Printf("[error] UpLoad exec.Command.CombinedOutput: %v\n", string(output.Result))
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルのカットに失敗しました。 %v\n", err),
 		}
 		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	} else if output.Err != nil {
+		log.Printf("[error] UpLoad exec.Command.CombinedOutput: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルのカットに失敗しました。 %v\n", err),
 		}
@@ -330,6 +369,7 @@ func UpLoad(c echo.Context) error {
 	maxPage = 1
 	src2, err := os.Open(CutDirName + "/1.pdf")
 	if err != nil {
+		log.Printf("[error] UpLoad os.Open cut: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルの展開に失敗しました。 %v\n", err),
 		}
@@ -339,6 +379,7 @@ func UpLoad(c echo.Context) error {
 
 	dst2, err := os.Create(filepath.Join(MergeDirPath, "merge.pdf"))
 	if err != nil {
+		log.Printf("[error] UpLoad os.Create merge: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルの作成に失敗しました。 %v\n", err),
 		}
@@ -347,6 +388,7 @@ func UpLoad(c echo.Context) error {
 
 	_, err = io.Copy(dst2, src2)
 	if err != nil {
+		log.Printf("[error] UpLoad io.Copy: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルのコピーに失敗しました。 %v\n", err),
 		}
@@ -362,8 +404,9 @@ func UpLoad(c echo.Context) error {
 func ShowMessage(c echo.Context) error {
 	file, err := os.Open("message.txt")
 	if err != nil {
+		log.Printf("[error] ShowMessage os.Open: %v\n", err)
 		data := map[string]string{
-			"Message": fmt.Sprintf("メッセージファイルの展開に失敗しました。 %v\n", err),
+			"Message": fmt.Sprintf("メッセージの展開に失敗しました。 %v\n", err),
 		}
 		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
@@ -392,6 +435,7 @@ func ShowMessage(c echo.Context) error {
 		messages = append(messages, *currentMessage)
 	}
 	if err := scanner.Err(); err != nil {
+		log.Printf("[error] ShowMessage scanner.Err: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("メッセージスキャンに失敗しました。 %v\n", err),
 		}
@@ -409,8 +453,9 @@ func AddMessage(c echo.Context) error {
 
 	file, err := os.OpenFile("message.txt", os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
+		log.Printf("[error] AddMessage os.Open: %v\n", err)
 		data := map[string]string{
-			"Message": fmt.Sprintf("メッセージファイルの展開に失敗しました。 %v\n", err),
+			"Message": fmt.Sprintf("メッセージの展開に失敗しました。 %v\n", err),
 		}
 		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
@@ -418,6 +463,7 @@ func AddMessage(c echo.Context) error {
 
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
+		log.Printf("[error] AddMessage time.LoadLocation: %v\n", err)
 		data := map[string]string{
 			"Message": fmt.Sprintf("タイムゾーン変換に失敗しました。 %v\n", err),
 		}
@@ -441,6 +487,7 @@ func AddMessage(c echo.Context) error {
 func SSE(c echo.Context) error {
 	flusher, ok := c.Response().Writer.(http.Flusher)
 	if !ok {
+		log.Println("[error] SSE c.Response")
 		return c.String(http.StatusInternalServerError, "Streaming unsupported")
 	}
 
