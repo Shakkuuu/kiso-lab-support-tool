@@ -13,6 +13,6 @@ docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -p 8080:8080 -d kiso-la
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
-- merge.pdfが更新されたら、/pdfのページを自動更新したい
+- merge.pdfが更新されたら、/pdfのページを自動更新したい ok
 - 質問機能
 - 運営からのメッセージ機能 ok

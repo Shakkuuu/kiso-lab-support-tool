@@ -25,6 +25,11 @@ type Message struct {
 	Content string
 }
 
+type CmdOutput struct {
+	Result []byte
+	Err    error
+}
+
 type TemplateRender struct {
 	templates *template.Template
 }
@@ -34,8 +39,10 @@ func (t *TemplateRender) Render(w io.Writer, name string, data interface{}, c ec
 }
 
 var (
-	maxPage int = 1
+	maxPage int = 0
 )
+
+var clients = make(map[chan string]struct{})
 
 const (
 	CutDirName    = "cut"
@@ -163,6 +170,8 @@ func main() {
 	e.GET("/pdf", ShowPDF)
 	e.GET("/message", ShowMessage)
 
+	e.GET("/sse", SSE)
+
 	m := e.Group("/management")
 
 	m.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
@@ -188,7 +197,7 @@ func ShowPDF(c echo.Context) error {
 	pdfPath := filepath.Join(MergeDirPath, "merge.pdf")
 	if _, err := os.ReadFile(pdfPath); err != nil {
 		data := map[string]string{
-			"Message": fmt.Sprintln("ページが見つかりませんでした"),
+			"Message": fmt.Sprintln("ファイルがまだアップロードされていません。"),
 		}
 		return c.Render(http.StatusNotFound, "error.html", data)
 	}
@@ -227,12 +236,25 @@ func ChangeMaxPage(c echo.Context) error {
 			}
 		}
 	}
+
+	ch := make(chan CmdOutput)
 	cmd := exec.Command(PythonPath, "pdf-merge.py", mp)
-	err = cmd.Start()
-	if err != nil {
+	go func(cmd *exec.Cmd) {
+		result, err := cmd.CombinedOutput()
+		ch <- CmdOutput{Result: result, Err: err}
+	}(cmd)
+	output := <-ch
+	if string(output.Result) != "Done\n" {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルのカットに失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	} else if output.Err != nil {
 		log.Printf("[error] exec.Command: %v\n", err)
 	}
 	fmt.Printf("The maximum page has been updated. %d\n", maxPage)
+
+	SendEvent("update")
 
 	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
 		"Message":     fmt.Sprintln("最大ページを更新しました。"),
@@ -286,11 +308,47 @@ func UpLoad(c echo.Context) error {
 		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
 
+	ch := make(chan CmdOutput)
 	cmd := exec.Command(PythonPath, "pdf-cut.py", UpLoadDirPath+"/upload.pdf")
-	err = cmd.Start()
-	if err != nil {
+	go func(cmd *exec.Cmd) {
+		result, err := cmd.CombinedOutput()
+		ch <- CmdOutput{Result: result, Err: err}
+	}(cmd)
+	output := <-ch
+	if string(output.Result) != "Done\n" {
 		data := map[string]string{
 			"Message": fmt.Sprintf("ファイルのカットに失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	} else if output.Err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルのカットに失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+
+	maxPage = 1
+	src2, err := os.Open(CutDirName + "/1.pdf")
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルの展開に失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+	defer src.Close()
+
+	dst2, err := os.Create(filepath.Join(MergeDirPath, "merge.pdf"))
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルの作成に失敗しました。 %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+
+	_, err = io.Copy(dst2, src2)
+	if err != nil {
+		data := map[string]string{
+			"Message": fmt.Sprintf("ファイルのコピーに失敗しました。 %v\n", err),
 		}
 		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
@@ -372,8 +430,45 @@ func AddMessage(c echo.Context) error {
 	fmt.Fprintln(file, content)
 	fmt.Fprintln(file, "")
 
+	SendEvent("update")
+
 	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
 		"Message":     fmt.Sprintln("メッセージの追記に成功しました。"),
 		"CurrentPage": maxPage,
 	})
+}
+
+func SSE(c echo.Context) error {
+	flusher, ok := c.Response().Writer.(http.Flusher)
+	if !ok {
+		return c.String(http.StatusInternalServerError, "Streaming unsupported")
+	}
+
+	messageChan := make(chan string)
+	clients[messageChan] = struct{}{}
+
+	defer func() {
+		delete(clients, messageChan)
+		close(messageChan)
+	}()
+
+	c.Response().Header().Set("Content-Type", "text/event-stream")
+	c.Response().Header().Set("Cache-Control", "no-cache")
+	c.Response().Header().Set("Connection", "keep-alive")
+
+	for {
+		select {
+		case msg := <-messageChan:
+			fmt.Fprintf(c.Response(), "data: %s\n\n", msg)
+			flusher.Flush()
+		case <-c.Request().Context().Done():
+			return nil
+		}
+	}
+}
+
+func SendEvent(message string) {
+	for client := range clients {
+		client <- message
+	}
 }

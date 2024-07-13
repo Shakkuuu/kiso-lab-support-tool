@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PDF表示</title>
     <link rel="stylesheet" href="/views/style.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var eventSource = new EventSource("/sse");
+            eventSource.onmessage = function(event) {
+                if (event.data === "update") {
+                    location.reload();
+                }
+            };
+        });
+    </script>
 </head>
 <body>
     <div class="container">

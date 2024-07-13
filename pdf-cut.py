@@ -11,3 +11,5 @@ def split_pdf_pages(src_path, dst_basepath, ):
 args = sys.argv
 
 split_pdf_pages(args[1], 'cut/')
+
+print("Done")
