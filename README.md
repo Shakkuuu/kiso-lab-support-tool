@@ -1,6 +1,6 @@
 # kiso-lab-support-tool
 
-## 使い方
+## 起動方法
 
 ### dockerの場合
 
@@ -54,6 +54,14 @@ PythonPath = "python3"
 ```shell
 go run main.go -user user -password password -port 8080
 ```
+
+## 使い方
+
+- '/management'にアクセスし、発表資料のpdfをアップロードする。
+- 発表の進捗に合わせて、maxPageの数字を変更する。
+- '/pdf'ページにアクセスすると、maxPageまでのページのpdfが表示され、maxPageが更新されると、pdfが自動で更新され、新たに指定されたmaxPageまでのページを見れる。
+- Managementからタイトルと本文を入力して全体にメッセージを送信することができる。
+- '/message'にアクセスすると、管理者から送信されたメッセージが一覧表示され、新たにメッセージが送信されると自動で更新されて表示される。
 
 ## メモ
 
