@@ -15,8 +15,10 @@ def merge_pdfs(max, output_path, directory):
     with open(output_path, 'wb') as output_file:
         writer.write(output_file)
 
-max = int(sys.argv[1])
+args = sys.argv
 
-merge_pdfs(max, "merge/merge.pdf", "cut")
+max = int(args[1])
+
+merge_pdfs(max, args[2], args[3])
 
 print("Done")

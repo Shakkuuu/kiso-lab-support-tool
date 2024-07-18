@@ -62,6 +62,7 @@ go run main.go -user user -password password -port 8080
 - '/pdf'ページにアクセスすると、maxPageまでのページのpdfが表示され、maxPageが更新されると、pdfが自動で更新され、新たに指定されたmaxPageまでのページを見れる。
 - Managementからタイトルと本文を入力して全体にメッセージを送信することができる。
 - '/message'にアクセスすると、管理者から送信されたメッセージが一覧表示され、新たにメッセージが送信されると自動で更新されて表示される。
+- ManagementからManagementMessageにアクセスし、メッセージを削除できる。（一般ユーザーのメッセージ一覧ではDeleteボタンは表示されない。）
 
 ## メモ
 
@@ -72,3 +73,7 @@ go run main.go -user user -password password -port 8080
 - 質問機能
 - 運営からのメッセージ機能 ok
 - 実行ポートをフラグで指定 ok
+- 見た目改良 ok
+- messageをdb管理に変更 ok
+- ファイル分け ok
+- DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。

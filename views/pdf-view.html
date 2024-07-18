@@ -19,7 +19,11 @@
 <body>
     <div class="container">
         <h1>PDF表示</h1>
-        <p><a href="/">index</a></p>
+        <div class="btn a-btn">
+            <p><a href="/">Index</a></p>
+            <br>
+            <p><a href="/message">Message</a></p>
+        </div>
         <div class="pdf-container">
             <embed class="pdf-embed" src="{{.PDFPath}}" type="application/pdf">
         </div>
