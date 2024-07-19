@@ -6,6 +6,8 @@
 
 #### DockerHubからimageを持ってくる場合
 
+[](https://hub.docker.com/r/shakku/kiso-lab-support-tool)
+
 DockerHubから持ってくる
 
 ```shell
@@ -66,15 +68,25 @@ go run main.go -user user -password password -port 8080
 
 ## メモ
 
+- DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。
+- 質問機能
+- dockerfileサイズ削減する
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
 - merge.pdfが更新されたら、/pdfのページを自動更新したい ok
-- 質問機能
 - 運営からのメッセージ機能 ok
 - 実行ポートをフラグで指定 ok
 - 見た目改良 ok
 - messageをdb管理に変更 ok
 - ファイル分け ok
-- DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。
 - messageの並び順を最新順に ok
+- echo v4にする ok
+- バリデーション ok
+- golang 1.22.5 ok
+- ファイルサイズ制限？ ok
+- サーバ側でpdfしかダメにする ok
+- ディレクトリの権限 ok
+- ファイル形式の確認 ok
+- XSS対策 ok
+- MessageのContentをHTML表示できるようにする ok

@@ -19,7 +19,7 @@ func main() {
 
 	_, err := os.Stat(controller.CutDirName)
 	if err != nil {
-		err = os.Mkdir(controller.CutDirName, 0755)
+		err = os.Mkdir(controller.CutDirName, 0444)
 		if err != nil {
 			log.Printf("[error] main os.Mkdir cut: %v\n", err)
 			os.Exit(1)
@@ -28,7 +28,7 @@ func main() {
 
 	_, err = os.Stat(controller.MergeDirName)
 	if err != nil {
-		err = os.Mkdir(controller.MergeDirName, 0755)
+		err = os.Mkdir(controller.MergeDirName, 0444)
 		if err != nil {
 			log.Printf("[error] main os.Mkdir merge: %v\n", err)
 			os.Exit(1)
@@ -37,7 +37,7 @@ func main() {
 
 	_, err = os.Stat(controller.UpLoadDirName)
 	if err != nil {
-		err = os.Mkdir(controller.UpLoadDirName, 0755)
+		err = os.Mkdir(controller.UpLoadDirName, 0444)
 		if err != nil {
 			log.Printf("[error] main os.Mkdir upload: %v\n", err)
 			os.Exit(1)

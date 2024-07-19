@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"sort"
@@ -11,7 +12,7 @@ import (
 	"kiso-lab-support-tool/entity"
 	"kiso-lab-support-tool/model"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type MessageController struct{}
@@ -81,8 +82,27 @@ func (mc MessageController) ManagementMessage(c echo.Context) error {
 }
 
 func (mc MessageController) AddMessage(c echo.Context) error {
-	title := c.FormValue("title")
-	content := c.FormValue("content")
+	messageForm := new(entity.MessageForm)
+	err := c.Bind(messageForm)
+	if err != nil {
+		log.Printf("[error] AddMessage c.Bind : %v\n", err)
+		data := map[string]interface{}{
+			"Message": fmt.Sprintf("Formの取得に失敗しました。: %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+
+	err = validate.Struct(messageForm)
+	if err != nil {
+		log.Printf("[error] AddMessage validate.Struct : %v\n", err)
+		data := map[string]interface{}{
+			"Message":     fmt.Sprintf("タイトルは1文字以上50文字以下、コンテンツは1文字以上10000文字以下にしてください。: %v\n", err),
+			"CurrentPage": maxPage,
+		}
+		return c.Render(http.StatusBadRequest, "management.html", data)
+	}
+
+	escapedContent := template.HTMLEscapeString(messageForm.Content)
 
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
@@ -94,8 +114,7 @@ func (mc MessageController) AddMessage(c echo.Context) error {
 	}
 	nowJST := time.Now().In(jst)
 
-	// err = mm.Create(title, nowJST.Format(time.DateTime), content)
-	err = mm.Create(title, content, nowJST)
+	err = mm.Create(messageForm.Title, escapedContent, nowJST)
 	if err != nil {
 		log.Printf("[error] AddMessage mm.Create: %v\n", err)
 		data := map[string]string{

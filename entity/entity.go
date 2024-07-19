@@ -20,3 +20,12 @@ type CmdOutput struct {
 	Result []byte
 	Err    error
 }
+
+type MaxPageForm struct {
+	MaxPage int `form:"maxpage" validate:"required,min=1,max=10000"`
+}
+
+type MessageForm struct {
+	Title   string `form:"title" validate:"required,min=1,max=50"`
+	Content string `form:"content" validate:"required,min=1,max=10000"`
+}

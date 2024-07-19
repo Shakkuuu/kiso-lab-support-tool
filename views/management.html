@@ -12,7 +12,7 @@
         <p>{{.Message}}</p>
         <h3>最大ページ更新</h3>
         <form method="POST" action="/management/maxpage">
-            <input type="number" id="maxpage" name="maxpage" value="{{.CurrentPage}}" min="1">
+            <input type="number" id="maxpage" name="maxpage" value="{{.CurrentPage}}" required min="1" max="10000">
             <input type="submit" value="Change Max Page">
         </form>
         <h3>ファイルアップロード</h3>
@@ -22,8 +22,8 @@
         </form>
         <h3>メッセージ送信</h3>
         <form method="POST" action="/management/addmessage">
-            <input type="text" id="title" name="title" placeholder="Title"><br>
-            <textarea id="content" name="content" placeholder="Content"></textarea><br>
+            <input type="text" id="title" name="title" placeholder="Title" required min="1" max="50"><br>
+            <textarea id="content" name="content" placeholder="Content" required minlength="1" maxlength="10000"></textarea><br>
             <button type="submit">send</button>
         </form>
         <h3>メッセージ管理</h3>

@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"text/template"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type TemplateRender struct {
@@ -46,6 +46,10 @@ func Init(un, pw string, p int) {
 			`status: ${status}` + ", " +
 			`error: ${error}` + ", " +
 			`latency: ${latency}(${latency_human})` + "\n",
+	}))
+	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
+		XSSProtection:         "1; mode=block",
+		ContentSecurityPolicy: "default-src 'self'",
 	}))
 
 	renderer := &TemplateRender{
