@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
+	"kiso-lab-support-tool/entity"
 	"kiso-lab-support-tool/model"
 
 	"github.com/labstack/echo"
@@ -26,8 +28,23 @@ func (mc MessageController) ShowMessage(c echo.Context) error {
 		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
 
+	sort.Slice(messages, func(i, j int) bool {
+		return messages[i].Date.After(messages[j].Date)
+	})
+
+	var viewMessages []entity.ViewMessage
+	for _, message := range messages {
+		viewMessage := entity.ViewMessage{
+			ID:      message.ID,
+			Title:   message.Title,
+			Content: message.Content,
+			Date:    message.Date.Format(time.DateTime),
+		}
+		viewMessages = append(viewMessages, viewMessage)
+	}
+
 	return c.Render(http.StatusOK, "message.html", map[string]interface{}{
-		"Message":    messages,
+		"Message":    viewMessages,
 		"Management": false,
 	})
 }
@@ -42,8 +59,23 @@ func (mc MessageController) ManagementMessage(c echo.Context) error {
 		return c.Render(http.StatusServiceUnavailable, "error.html", data)
 	}
 
+	sort.Slice(messages, func(i, j int) bool {
+		return messages[i].Date.After(messages[j].Date)
+	})
+
+	var viewMessages []entity.ViewMessage
+	for _, message := range messages {
+		viewMessage := entity.ViewMessage{
+			ID:      message.ID,
+			Title:   message.Title,
+			Content: message.Content,
+			Date:    message.Date.Format(time.DateTime),
+		}
+		viewMessages = append(viewMessages, viewMessage)
+	}
+
 	return c.Render(http.StatusOK, "message.html", map[string]interface{}{
-		"Message":    messages,
+		"Message":    viewMessages,
 		"Management": true,
 	})
 }
@@ -62,7 +94,8 @@ func (mc MessageController) AddMessage(c echo.Context) error {
 	}
 	nowJST := time.Now().In(jst)
 
-	err = mm.Create(title, nowJST.Format(time.DateTime), content)
+	// err = mm.Create(title, nowJST.Format(time.DateTime), content)
+	err = mm.Create(title, content, nowJST)
 	if err != nil {
 		log.Printf("[error] AddMessage mm.Create: %v\n", err)
 		data := map[string]string{

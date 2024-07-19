@@ -3,6 +3,7 @@ package model
 import (
 	"kiso-lab-support-tool/db"
 	"kiso-lab-support-tool/entity"
+	"time"
 )
 
 type MessageModel struct{}
@@ -20,14 +21,14 @@ func (mm MessageModel) GetAll() ([]entity.Message, error) {
 	return messages, nil
 }
 
-func (mm MessageModel) Create(title, date, content string) error {
+func (mm MessageModel) Create(title, content string, date time.Time) error {
 	var message entity.Message
 
 	db := db.GetDB()
 
 	message.Title = title
-	message.Date = date
 	message.Content = content
+	message.Date = date
 
 	err := db.Create(&message).Error
 	if err != nil {

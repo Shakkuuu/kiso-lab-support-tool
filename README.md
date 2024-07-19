@@ -77,3 +77,4 @@ go run main.go -user user -password password -port 8080
 - messageをdb管理に変更 ok
 - ファイル分け ok
 - DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。
+- messageの並び順を最新順に ok
