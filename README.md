@@ -66,6 +66,13 @@ go run main.go -user user -password password -port 8080
 - '/message'にアクセスすると、管理者から送信されたメッセージが一覧表示され、新たにメッセージが送信されると自動で更新されて表示される。
 - ManagementからManagementMessageにアクセスし、メッセージを削除できる。（一般ユーザーのメッセージ一覧ではDeleteボタンは表示されない。）
 
+## 注意
+
+- pdfのファイルサイズは100MBまで
+- ページ数は10000ページまで
+- メッセージのタイトルは50文字まで
+- メッセージの本文は10000文字まで
+
 ## メモ
 
 - DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。
