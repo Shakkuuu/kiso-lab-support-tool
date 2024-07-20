@@ -47,10 +47,6 @@ func Init(un, pw string, p int) {
 			`error: ${error}` + ", " +
 			`latency: ${latency}(${latency_human})` + "\n",
 	}))
-	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
-		XSSProtection:         "1; mode=block",
-		ContentSecurityPolicy: "default-src 'self'",
-	}))
 
 	renderer := &TemplateRender{
 		templates: template.Must(template.ParseGlob("./views/*.html")),

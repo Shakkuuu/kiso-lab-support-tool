@@ -78,6 +78,8 @@ go run main.go -user user -password password -port 8080
 - DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。
 - 質問機能
 - dockerfileサイズ削減する
+- SSEのLock
+- 最大ページ更新のたびに再読み込みだから、ページ数が多いと読み込み遅くなる
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok

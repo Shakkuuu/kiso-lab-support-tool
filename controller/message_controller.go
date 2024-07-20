@@ -13,6 +13,7 @@ import (
 	"kiso-lab-support-tool/model"
 
 	"github.com/labstack/echo/v4"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type MessageController struct{}
@@ -102,6 +103,9 @@ func (mc MessageController) AddMessage(c echo.Context) error {
 		return c.Render(http.StatusBadRequest, "management.html", data)
 	}
 
+	policy := bluemonday.UGCPolicy()
+	safeTitle := policy.Sanitize(messageForm.Title)
+
 	escapedContent := template.HTMLEscapeString(messageForm.Content)
 
 	jst, err := time.LoadLocation("Asia/Tokyo")
@@ -114,7 +118,7 @@ func (mc MessageController) AddMessage(c echo.Context) error {
 	}
 	nowJST := time.Now().In(jst)
 
-	err = mm.Create(messageForm.Title, escapedContent, nowJST)
+	err = mm.Create(safeTitle, escapedContent, nowJST)
 	if err != nil {
 		log.Printf("[error] AddMessage mm.Create: %v\n", err)
 		data := map[string]string{
