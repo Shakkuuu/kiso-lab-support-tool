@@ -21,6 +21,11 @@ type CmdOutput struct {
 	Err    error
 }
 
+type PagePath struct {
+	Path   string
+	Number string
+}
+
 type MaxPageForm struct {
 	MaxPage int `form:"maxpage" validate:"required,min=1,max=10000"`
 }

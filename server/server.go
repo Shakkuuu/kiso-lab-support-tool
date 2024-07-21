@@ -53,11 +53,11 @@ func Init(un, pw string, p int) {
 	}
 	e.Renderer = renderer
 
-	e.Static("/"+controller.MergeDirName, controller.MergeDirName)
+	e.Static("/"+controller.ViewPDFDirName, controller.ViewPDFDirName)
 	e.Static("/views", "views")
 
 	e.GET("/", controller.Index)
-	e.GET("/pdf", pc.ShowPDF)
+	e.GET("/pdf/:currentPage", pc.ShowPDF)
 	e.GET("/message", mc.ShowMessage)
 
 	e.GET("/sse", controller.SSE)

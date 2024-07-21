@@ -24,8 +24,26 @@
             <br>
             <p><a href="/message">Message</a></p>
         </div>
-        <div class="pdf-container">
-            <embed class="pdf-embed" src="{{.PDFPath}}" type="application/pdf">
+        <div class="pdf-layout">
+            <div class="pdf-preview-container">
+                {{ range $v := .PagePathList }}
+                    <p><a href="/pdf/{{$v.Number}}">page {{$v.Number}}</a></p>
+                    <img class="pdf-img-preview" src="{{$v.Path}}" alt="PDF Preview Page">
+                {{ end }}
+            </div>
+            <div class="pdf-container">
+                <img class="pdf-img" src="{{.CurrentPagePath}}" fetchpriority="high" alt="PDF Page">
+                <div class="navigation">
+                    <div class="btn a-btn">
+                        {{ if .BackShow }}
+                            <a href="/pdf/{{.BackPageNumber}}">前のページ</a>
+                        {{ end }}
+                        {{ if .NextShow }}
+                                <a href="/pdf/{{.NextPageNumber}}">次のページ</a>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

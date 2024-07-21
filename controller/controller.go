@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	CutDirName    = "cut"
-	CutDirPath    = "./cut"
-	MergeDirName  = "merge"
-	MergeDirPath  = "./merge"
-	UpLoadDirName = "upload"
-	UpLoadDirPath = "./upload"
-	PythonPath    = "/opt/venv/bin/python3"
+	CutDirName     = "cut"
+	CutDirPath     = "./cut"
+	ViewPDFDirName = "view-pdf"
+	ViewPDFDirPath = "./view-pdf"
+	UpLoadDirName  = "upload"
+	UpLoadDirPath  = "./upload"
+	PythonPath     = "/opt/venv/bin/python3"
 	// PythonPath = "python3.11"
 )
 

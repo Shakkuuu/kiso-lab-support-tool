@@ -72,15 +72,6 @@ a:hover {
 	background-color: #5a75be;
 }
 
-.container {
-    max-width: 90%; /*サイズ変更*/
-    margin: 0 auto;
-    padding: 20px;
-    background: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-}
-
 form {
     margin-top: 20px;
 }
@@ -117,16 +108,48 @@ button:hover {
     background-color: #0055aa;
 }
 
-.pdf-container {
-    width: 100%;
-    height: 80vh;
+.container {
+    margin: 20px;
+}
+
+.pdf-layout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
     margin-top: 20px;
 }
 
-.pdf-embed {
+.pdf-container {
+    width: 80%;
+    height: 80vh;
+    margin-left: 20px;
+    text-align: center;
+}
+
+.pdf-img {
     width: 100%;
-    height: 100%;
+    height: 90%;
     border: none;
+}
+
+.pdf-preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 150px;
+    height: 70vh;
+    overflow-y: auto;
+    margin-right: 20px;
+}
+
+.pdf-img-preview {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.navigation {
+    margin-top: 20px;
 }
 
 .section {

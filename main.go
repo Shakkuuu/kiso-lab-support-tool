@@ -26,11 +26,11 @@ func main() {
 		}
 	}
 
-	_, err = os.Stat(controller.MergeDirName)
+	_, err = os.Stat(controller.ViewPDFDirName)
 	if err != nil {
-		err = os.Mkdir(controller.MergeDirName, 0444)
+		err = os.Mkdir(controller.ViewPDFDirName, 0444)
 		if err != nil {
-			log.Printf("[error] main os.Mkdir merge: %v\n", err)
+			log.Printf("[error] main os.Mkdir view-pdf: %v\n", err)
 			os.Exit(1)
 		}
 	}
@@ -58,15 +58,15 @@ func main() {
 		}
 	}
 
-	merge, err := filepath.Glob(controller.MergeDirPath + "/*.pdf")
+	viewPDF, err := filepath.Glob(controller.ViewPDFDirPath + "/*.pdf")
 	if err != nil {
-		log.Printf("[error] main filepath.Glob merge: %v\n", err)
+		log.Printf("[error] main filepath.Glob view-pdf: %v\n", err)
 		os.Exit(1)
-	} else if len(merge) != 0 {
-		for _, f := range merge {
+	} else if len(viewPDF) != 0 {
+		for _, f := range viewPDF {
 			err = os.Remove(f)
 			if err != nil {
-				log.Printf("[error] main os.Remove merge: %v\n", err)
+				log.Printf("[error] main os.Remove view-pdf: %v\n", err)
 				os.Exit(1)
 			}
 		}
@@ -76,7 +76,7 @@ func main() {
 	if err != nil {
 		log.Printf("[error] main filepath.Glob upload: %v\n", err)
 		os.Exit(1)
-	} else if len(merge) != 0 {
+	} else if len(upload) != 0 {
 		for _, f := range upload {
 			err = os.Remove(f)
 			if err != nil {

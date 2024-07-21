@@ -5,7 +5,7 @@ RUN apt-get update && \
 
 RUN python3 -m venv /opt/venv
 
-RUN /opt/venv/bin/pip install pypdf
+RUN /opt/venv/bin/pip install PyMuPDF Pillow
 
 WORKDIR /app
 

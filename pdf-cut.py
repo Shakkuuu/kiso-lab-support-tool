@@ -1,15 +1,28 @@
-import pypdf
 import sys
+import fitz  # PyMuPDF
+from PIL import Image
+import os
 
-def split_pdf_pages(src_path, dst_basepath, ):
-    src_pdf = pypdf.PdfReader(src_path)
-    for i, page in enumerate(src_pdf.pages):
-        dst_pdf = pypdf.PdfWriter()
-        dst_pdf.add_page(page)
-        dst_pdf.write(f'{dst_basepath}/{i+1}.pdf')
+def pdf_to_jpeg(pdf_path, output_dir):
+    pdf_document = fitz.open(pdf_path)
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    for page_num in range(pdf_document.page_count):
+        page = pdf_document.load_page(page_num)
+        pix = page.get_pixmap()
+
+        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+
+        output_path = os.path.join(output_dir, f"{page_num + 1}.jpg")
+        img.save(output_path, "JPEG")
+
 
 args = sys.argv
 
-split_pdf_pages(args[1], args[2])
+pdf_path = args[1]
+output_dir = args[2]
+pdf_to_jpeg(pdf_path, output_dir)
 
 print("Done")
