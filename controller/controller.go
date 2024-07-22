@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,7 +20,10 @@ const (
 	// PythonPath = "python3.11"
 )
 
-var clients = make(map[chan string]struct{})
+var (
+	clients      = make(map[chan string]struct{})
+	clientsMutex sync.Mutex
+)
 
 func Index(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", nil)
@@ -39,10 +43,14 @@ func SSE(c echo.Context) error {
 	}
 
 	messageChan := make(chan string)
+	clientsMutex.Lock()
 	clients[messageChan] = struct{}{}
+	clientsMutex.Unlock()
 
 	defer func() {
+		clientsMutex.Lock()
 		delete(clients, messageChan)
+		clientsMutex.Unlock()
 		close(messageChan)
 	}()
 
@@ -62,6 +70,8 @@ func SSE(c echo.Context) error {
 }
 
 func SendEvent(message string) {
+	clientsMutex.Lock()
+	defer clientsMutex.Unlock()
 	for client := range clients {
 		client <- message
 	}

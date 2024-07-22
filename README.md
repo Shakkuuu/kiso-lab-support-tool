@@ -6,7 +6,7 @@
 
 #### DockerHubからimageを持ってくる場合
 
-[](https://hub.docker.com/r/shakku/kiso-lab-support-tool)
+[https://hub.docker.com/r/shakku/kiso-lab-support-tool](https://hub.docker.com/r/shakku/kiso-lab-support-tool)
 
 DockerHubから持ってくる
 
@@ -78,7 +78,6 @@ go run main.go -user user -password password -port 8080
 - DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。
 - 質問機能
 - dockerfileサイズ削減する
-- SSEのLock
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
@@ -107,3 +106,4 @@ go run main.go -user user -password password -port 8080
 - pdfじゃなくで、jpegにして、imgで表示させる？imgだと読み込みの優先順位とかができるらしい ok jpgの方が軽かった
 - 結果的に、リロードのたびに1ページ目に戻されてた問題が解決した。
 - プレビューをハンバーガーにして隠せるようにする。 ok
+- SSEのLock ok
