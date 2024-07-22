@@ -36,6 +36,15 @@ func (pc PDFController) ShowPDF(c echo.Context) error {
 		return c.Render(http.StatusBadRequest, "error.html", data)
 	}
 
+	_, err = os.Stat(ViewPDFDirPath + "/1.jpg")
+	if err != nil {
+		log.Printf("[error] ShowPDF os.Stat : %v\n", err)
+		data := map[string]string{
+			"Message": fmt.Sprintln("ファイルがまだアップロードされていません。"),
+		}
+		return c.Render(http.StatusNotFound, "error.html", data)
+	}
+
 	_, err = os.Stat(ViewPDFDirPath + "/" + currentPage + ".jpg")
 	if err != nil {
 		log.Printf("[error] ShowPDF os.Stat : %v\n", err)

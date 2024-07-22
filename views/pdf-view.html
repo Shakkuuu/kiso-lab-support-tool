@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PDF表示</title>
+    <title>PDF</title>
     <link rel="stylesheet" href="/views/style.css">
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -13,37 +13,50 @@
                     location.reload();
                 }
             };
+            document.getElementById("hamburger-menu").addEventListener("click", function() {
+                    var previewContainer = document.getElementById("pdf-preview-container");
+                    if (previewContainer.style.display === "none" || previewContainer.style.display === "") {
+                        previewContainer.style.display = "flex";
+                    } else {
+                        previewContainer.style.display = "none";
+                    }
+            });
         });
     </script>
 </head>
 <body>
     <div class="container">
-        <h1>PDF表示</h1>
+        <h1>PDF</h1>
+        <div class="main-content">
+            <div class="sidebar">
+                <div id="hamburger-menu" class="hamburger-menu">
+                    &#9776; preview
+                </div>
+                <div id="pdf-preview-container" class="pdf-preview-container">
+                    {{ range $v := .PagePathList }}
+                        <p><a href="/pdf/{{$v.Number}}">page {{$v.Number}}</a></p>
+                        <img class="pdf-img-preview" src="{{$v.Path}}" alt="PDF Preview Page">
+                    {{ end }}
+                </div>
+            </div>
+            <div class="content-area">
+                <div class="pdf-container">
+                    <img class="pdf-img" src="{{.CurrentPagePath}}" fetchpriority="high" alt="PDF Page">
+                </div>
+                <div class="navigation">
+                    {{ if .BackShow }}
+                        <a href="/pdf/{{.BackPageNumber}}">前のページ</a>
+                    {{ end }}
+                    {{ if .NextShow }}
+                        <a href="/pdf/{{.NextPageNumber}}">次のページ</a>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
         <div class="btn a-btn">
             <p><a href="/">Index</a></p>
             <br>
             <p><a href="/message">Message</a></p>
-        </div>
-        <div class="pdf-layout">
-            <div class="pdf-preview-container">
-                {{ range $v := .PagePathList }}
-                    <p><a href="/pdf/{{$v.Number}}">page {{$v.Number}}</a></p>
-                    <img class="pdf-img-preview" src="{{$v.Path}}" alt="PDF Preview Page">
-                {{ end }}
-            </div>
-            <div class="pdf-container">
-                <img class="pdf-img" src="{{.CurrentPagePath}}" fetchpriority="high" alt="PDF Page">
-                <div class="navigation">
-                    <div class="btn a-btn">
-                        {{ if .BackShow }}
-                            <a href="/pdf/{{.BackPageNumber}}">前のページ</a>
-                        {{ end }}
-                        {{ if .NextShow }}
-                                <a href="/pdf/{{.NextPageNumber}}">次のページ</a>
-                        {{ end }}
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </body>

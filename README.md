@@ -79,7 +79,6 @@ go run main.go -user user -password password -port 8080
 - 質問機能
 - dockerfileサイズ削減する
 - SSEのLock
-- プレビューをハンバーガーにして隠せるようにする。
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
@@ -107,3 +106,4 @@ go run main.go -user user -password password -port 8080
 - 最大ページ更新のたびに再読み込みだから、ページ数が多いと読み込み遅くなる ok
 - pdfじゃなくで、jpegにして、imgで表示させる？imgだと読み込みの優先順位とかができるらしい ok jpgの方が軽かった
 - 結果的に、リロードのたびに1ページ目に戻されてた問題が解決した。
+- プレビューをハンバーガーにして隠せるようにする。 ok
