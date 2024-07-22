@@ -36,7 +36,15 @@ func Init(un, pw string, p int) {
 	e := echo.New()
 
 	e.Use(middleware.Recover())
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+
+	renderer := &TemplateRender{
+		templates: template.Must(template.ParseGlob("./views/*.html")),
+	}
+	e.Renderer = renderer
+
+	access := e.Group("")
+
+	access.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `[access] ` +
 			`time: ${time_rfc3339_nano}` + ", " +
 			`method: ${method}` + ", " +
@@ -48,21 +56,30 @@ func Init(un, pw string, p int) {
 			`latency: ${latency}(${latency_human})` + "\n",
 	}))
 
-	renderer := &TemplateRender{
-		templates: template.Must(template.ParseGlob("./views/*.html")),
-	}
-	e.Renderer = renderer
+	access.GET("/", controller.Index)
+	access.GET("/pdf/:currentPage", pc.ShowPDF)
+	access.GET("/message", mc.ShowMessage)
 
-	e.Static("/"+controller.ViewPDFDirName, controller.ViewPDFDirName)
-	e.Static("/views", "views")
+	access.GET("/sse", controller.SSE)
 
-	e.GET("/", controller.Index)
-	e.GET("/pdf/:currentPage", pc.ShowPDF)
-	e.GET("/message", mc.ShowMessage)
+	static := e.Group("/static")
 
-	e.GET("/sse", controller.SSE)
+	static.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `[static] ` +
+			`time: ${time_rfc3339_nano}` + ", " +
+			`method: ${method}` + ", " +
+			`remote_ip: ${remote_ip}` + ", " +
+			`host: ${host}` + ", " +
+			`uri: ${uri}` + ", " +
+			`status: ${status}` + ", " +
+			`error: ${error}` + ", " +
+			`latency: ${latency}(${latency_human})` + "\n",
+	}))
 
-	m := e.Group("/management")
+	static.Static("/"+controller.ViewPDFDirName, controller.ViewPDFDirName)
+	static.Static("/views", "views")
+
+	m := access.Group("/management")
 
 	m.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
 		if username == un && password == pw {

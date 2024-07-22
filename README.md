@@ -75,9 +75,9 @@ go run main.go -user user -password password -port 8080
 
 ## メモ
 
-- DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。
 - 質問機能
 - dockerfileサイズ削減する
+- gzip化してリクエスト数を減らす
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
@@ -107,3 +107,5 @@ go run main.go -user user -password password -port 8080
 - 結果的に、リロードのたびに1ページ目に戻されてた問題が解決した。
 - プレビューをハンバーガーにして隠せるようにする。 ok
 - SSEのLock ok
+- DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。 ok
+- リクエスト数は減らせてないが、ログを分けてとりあえず対応

@@ -52,11 +52,11 @@ func (pc PDFController) ShowPDF(c echo.Context) error {
 		currentPage = "1"
 	}
 
-	currentPagePath := "/" + ViewPDFDirName + "/" + currentPage + ".jpg"
+	currentPagePath := "/static" + "/" + ViewPDFDirName + "/" + currentPage + ".jpg"
 
 	var pagePathList []entity.PagePath
 	for i := 1; i <= maxPage; i++ {
-		filePath := "/" + ViewPDFDirName + "/" + strconv.Itoa(i) + ".jpg"
+		filePath := "/static" + "/" + ViewPDFDirName + "/" + strconv.Itoa(i) + ".jpg"
 		pp := entity.PagePath{
 			Path:   filePath,
 			Number: strconv.Itoa(i),
