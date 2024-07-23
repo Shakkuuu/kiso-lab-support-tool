@@ -76,8 +76,8 @@ go run main.go -user user -password password -port 8080
 ## メモ
 
 - 質問機能
-- dockerfileサイズ削減する
 - gzip化してリクエスト数を減らす
+- ハンバーガー内の画像はハンバーガー開かれるまで読み込まないようにしたい
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
@@ -109,3 +109,6 @@ go run main.go -user user -password password -port 8080
 - SSEのLock ok
 - DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。 ok
 - リクエスト数は減らせてないが、ログを分けてとりあえず対応
+- dockerfileサイズ削減する ok
+
+docker image build --platform linux/amd64 -t kiso-lab-support-tool .
