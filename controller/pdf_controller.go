@@ -22,6 +22,8 @@ type DocumentController struct{}
 var (
 	// 現在の最大ページ
 	maxPage int = 0
+	// 資料のページ数
+	documentPage int = 0
 	// バリデータのインスタンス作成
 	validate = validator.New()
 )
@@ -145,6 +147,16 @@ func (dc DocumentController) ChangeMaxPage(c echo.Context) error {
 		log.Printf("[error] ChangeMaxPage validate.Struct : %v\n", err)
 		data := map[string]interface{}{
 			"Message":     fmt.Sprintf("整数以外あるいは値が1以上10000以下になっていません。: %v\n", err),
+			"CurrentPage": maxPage,
+		}
+		return c.Render(http.StatusBadRequest, "management.html", data)
+	}
+
+	// 指定した数字が資料のページ数を超えていないか
+	if maxPageForm.MaxPage > documentPage {
+		log.Println("[error] ChangeMaxPage over documentPage")
+		data := map[string]interface{}{
+			"Message":     fmt.Sprintln("値が資料のページ数を超えています。"),
 			"CurrentPage": maxPage,
 		}
 		return c.Render(http.StatusBadRequest, "management.html", data)
@@ -415,6 +427,19 @@ func (dc DocumentController) UpLoad(c echo.Context) error {
 
 	// 最初のページだけ表示させるため、最大ページを1ページに更新
 	maxPage = 1
+
+	// cutディレクトリに入っている分割された資料の数をカウント
+	cuts2, err := filepath.Glob(CutDirPath + "/*.jpg")
+	if err != nil {
+		log.Printf("[error] Upload filepath.Glob cut: %v\n", err)
+		data := map[string]string{
+			"Message": fmt.Sprintf("アップロードに失敗しました。: %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	}
+	// lenから資料のページ数を取得
+	documentPage = len(cuts2)
+
 	// 分割された資料から1ページ目だけ開く
 	src2, err := os.Open(CutDirName + "/1.jpg")
 	if err != nil {

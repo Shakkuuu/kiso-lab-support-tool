@@ -76,6 +76,7 @@ go run main.go -user user -password password -port 8080
 ## メモ
 
 - 質問機能
+- ファイル配布
 - ページ送りのたびにSSEクライアントに参加しているため、たまに読み込みがものすごく遅くなる
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
