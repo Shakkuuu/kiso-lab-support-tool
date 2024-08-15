@@ -45,7 +45,7 @@ docker run -e USER_ENV="user" -e PASSWORD_ENV="password" -e PORT_ENV=8080 -p 808
 ### goコマンドで実行する場合
 
 pythonの実行パスを以下にする。
-pypdfというパッケージを使用しているため、環境に合わせてpythonのバージョン指定を変更する。
+PyMuPDFやPillowというパッケージを使用しているため、環境に合わせてpythonのバージョン指定を変更する。
 
 ```go:main.go
 PythonPath = "python3"
