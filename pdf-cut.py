@@ -3,7 +3,7 @@ import fitz  # PyMuPDF
 from PIL import Image
 import os
 
-#
+# PDFファイルを1ページごとに分割してjpgに変換
 def pdf_to_jpeg(pdf_path, output_dir):
     # 分割すファイルを開く
     pdf_document = fitz.open(pdf_path)

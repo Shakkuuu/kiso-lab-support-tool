@@ -93,7 +93,7 @@ func Init(un, pw string, p int) {
 
 	// クライアントに表示させるページのjpgファイルの配信
 	static.Static("/"+controller.ViewDocumentDirName, controller.ViewDocumentDirName)
-	// HTTPテンプレートなどの静的ファイルの配信
+	// HTMLテンプレートなどの静的ファイルの配信
 	static.Static("/views", "views")
 
 	// 認証を必要とするURLパスグループ作成
