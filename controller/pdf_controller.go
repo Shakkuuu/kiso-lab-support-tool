@@ -287,6 +287,48 @@ func (dc DocumentController) UpLoad(c echo.Context) error {
 		return c.Render(http.StatusBadRequest, "management.html", data)
 	}
 
+	// クライアント向け公開ディレクトリに資料が入っているか
+	viewDocuments, err := filepath.Glob(ViewDocumentDirPath + "/*.jpg")
+	if err != nil {
+		log.Printf("[error] UpLoad filepath.Glob view-document: %v\n", err)
+		data := map[string]string{
+			"Message": fmt.Sprintf("アップロードに失敗しました。: %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	} else if len(viewDocuments) != 0 { // クライアントに表示させるjpgファイルが入っていたら削除
+		for _, f := range viewDocuments {
+			err = os.Remove(f)
+			if err != nil {
+				log.Printf("[error] UpLoad os.Remove viewDocuments: %v\n", err)
+				data := map[string]string{
+					"Message": fmt.Sprintf("アップロードに失敗しました。: %v\n", err),
+				}
+				return c.Render(http.StatusServiceUnavailable, "error.html", data)
+			}
+		}
+	}
+
+	// cutディレクトリに資料が入っているか
+	cuts, err := filepath.Glob(CutDirPath + "/*.jpg")
+	if err != nil {
+		log.Printf("[error] Upload filepath.Glob cut: %v\n", err)
+		data := map[string]string{
+			"Message": fmt.Sprintf("アップロードに失敗しました。: %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	} else if len(cuts) != 0 { // cutディレクトリにjpgファイルが入っていたら削除
+		for _, f := range cuts {
+			err = os.Remove(f)
+			if err != nil {
+				log.Printf("[error] UpLoad os.Remove cut: %v\n", err)
+				data := map[string]string{
+					"Message": fmt.Sprintf("アップロードに失敗しました。: %v\n", err),
+				}
+				return c.Render(http.StatusServiceUnavailable, "error.html", data)
+			}
+		}
+	}
+
 	// アップロード先のディレクトリが存在するか確認
 	_, err = os.Stat(UpLoadDirName)
 	if err != nil {
@@ -299,6 +341,27 @@ func (dc DocumentController) UpLoad(c echo.Context) error {
 				"Message": fmt.Sprintf("アップロード先のディレクトリ作成に失敗しました。 %v\n", err),
 			}
 			return c.Render(http.StatusServiceUnavailable, "error.html", data)
+		}
+	}
+
+	// uploadディレクトリに資料が入っているか
+	uploads, err := filepath.Glob(UpLoadDirPath + "/*.pdf")
+	if err != nil {
+		log.Printf("[error] Upload filepath.Glob upload: %v\n", err)
+		data := map[string]string{
+			"Message": fmt.Sprintf("アップロードに失敗しました。: %v\n", err),
+		}
+		return c.Render(http.StatusServiceUnavailable, "error.html", data)
+	} else if len(uploads) != 0 { // uploadディレクトリにpdfファイルが入っていたら削除
+		for _, f := range uploads {
+			err = os.Remove(f)
+			if err != nil {
+				log.Printf("[error] UpLoad os.Remove upload: %v\n", err)
+				data := map[string]string{
+					"Message": fmt.Sprintf("アップロードに失敗しました。: %v\n", err),
+				}
+				return c.Render(http.StatusServiceUnavailable, "error.html", data)
+			}
 		}
 	}
 
