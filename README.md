@@ -61,7 +61,7 @@ go run main.go -user user -password password -port 8080
 
 - '/management'にアクセスし、発表資料のpdfをアップロードする。
 - 発表の進捗に合わせて、maxPageの数字を変更する。
-- '/pdf'ページにアクセスすると、maxPageまでのページのpdfが表示され、maxPageが更新されると、pdfが自動で更新され、新たに指定されたmaxPageまでのページを見れる。
+- '/document'ページにアクセスすると、maxPageまでのページの資料が表示され、maxPageが更新されると、資料が自動で更新され、新たに指定されたmaxPageまでのページを見れる。
 - Managementからタイトルと本文を入力して全体にメッセージを送信することができる。
 - '/message'にアクセスすると、管理者から送信されたメッセージが一覧表示され、新たにメッセージが送信されると自動で更新されて表示される。
 - ManagementからManagementMessageにアクセスし、メッセージを削除できる。（一般ユーザーのメッセージ一覧ではDeleteボタンは表示されない。）
@@ -78,6 +78,7 @@ go run main.go -user user -password password -port 8080
 - 質問機能
 - gzip化してリクエスト数を減らす
 - ハンバーガー内の画像はハンバーガー開かれるまで読み込まないようにしたい
+- SSEをどっちもupdateにしてるから、どっちもリロードされちゃう？
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
@@ -110,5 +111,6 @@ go run main.go -user user -password password -port 8080
 - DockerfileのCMDの書き方(# CMD ["./main", "-user", "$USER_ENV", "-password", "$PASSWORD_ENV", "-port", "$PORT_ENV"])でうまく起動できないのを確認する。 ok
 - リクエスト数は減らせてないが、ログを分けてとりあえず対応
 - dockerfileサイズ削減する ok
+- 開発者モードからDelete見えない？メッセージのIDとか ok大丈夫
 
 docker image build --platform linux/amd64 -t kiso-lab-support-tool .

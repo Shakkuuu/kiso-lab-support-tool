@@ -10,32 +10,40 @@
     <div class="container">
         <h1>management</h1>
         <p>{{.Message}}</p>
-        <h3>最大ページ更新</h3>
+        <!-- 最大ページ更新 -->
+        <h3>Maximum Page Update</h3>
         <form method="POST" action="/management/maxpage">
+            <!-- 値は最小1、最大10,000まで -->
             <input type="number" id="maxpage" name="maxpage" value="{{.CurrentPage}}" required min="1" max="10000">
             <input type="submit" value="Change Max Page">
         </form>
-        <h3>ファイルアップロード</h3>
+        <!-- 資料(PDF)のアップロード -->
+        <h3>Document Upload (PDF)</h3>
         <form id="form" enctype="multipart/form-data" action="/management/upload" method="POST">
+            <!-- .pdfのファイルのみ有効（バックエンドでもファイルのタイプを確認している） -->
             <input type="file" id="file" name="file" accept=".pdf">
-            <button class="button" type="submit">upload</button>
+            <button class="button" type="submit">Upload</button>
         </form>
-        <h3>メッセージ送信</h3>
+        <!-- メッセージ送信 -->
+        <h3>Message Sent</h3>
         <form method="POST" action="/management/addmessage">
+            <!-- タイトルは1文字以上50文字以下 -->
             <input type="text" id="title" name="title" placeholder="Title" required min="1" max="50"><br>
+            <!-- 本文は1文字以上10,000文字以下 -->
             <textarea id="content" name="content" placeholder="Content" required minlength="1" maxlength="10000"></textarea><br>
             <button type="submit">send</button>
         </form>
-        <h3>メッセージ管理</h3>
+        <!-- メッセージ管理ページへ移行 -->
+        <h3>Message Management</h3>
         <div class="btn a-btn">
-            <p><a href="/management/message">ManagementMessage</a></p>
+            <p><a href="/management/message">Message Management</a></p>
         </div>
         <br>
         <h3>etc.</h3>
         <div class="btn a-btn">
             <p><a href="/">Index</a></p>
             <br>
-            <p><a href="/pdf/1">PDF</a></p>
+            <p><a href="/document/1">Document</a></p>
             <br>
             <p><a href="/message">Message</a></p>
         </div>

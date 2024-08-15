@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PDF</title>
+    <title>Document</title>
     <link rel="stylesheet" href="/static/views/style.css">
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // SSEクライアントに参加
             var eventSource = new EventSource("/sse");
+            // バックエンドサーバから"update"というSSEが届いたらページをリロードする。
             eventSource.onmessage = function(event) {
                 if (event.data === "update") {
                     location.reload();
                 }
             };
+            // ハンバーガーメニューのクリックイベント管理
             document.getElementById("hamburger-menu").addEventListener("click", function() {
-                    var previewContainer = document.getElementById("pdf-preview-container");
+                    var previewContainer = document.getElementById("document-preview-container");
                     if (previewContainer.style.display === "none" || previewContainer.style.display === "") {
                         previewContainer.style.display = "flex";
                     } else {
@@ -26,29 +29,31 @@
 </head>
 <body>
     <div class="container">
-        <h1>PDF</h1>
+        <h1>Document</h1>
         <div class="main-content">
             <div class="sidebar">
                 <div id="hamburger-menu" class="hamburger-menu">
                     &#9776; preview
                 </div>
-                <div id="pdf-preview-container" class="pdf-preview-container">
+                <!-- ページプレビュー -->
+                <div id="document-preview-container" class="document-preview-container">
                     {{ range $v := .PagePathList }}
-                        <p><a href="/pdf/{{$v.Number}}">page {{$v.Number}}</a></p>
-                        <img class="pdf-img-preview" src="{{$v.Path}}" alt="PDF Preview Page">
+                        <p><a href="/document/{{$v.Number}}">page {{$v.Number}}</a></p>
+                        <img class="document-img-preview" src="{{$v.Path}}" alt="Document Preview Page">
                     {{ end }}
                 </div>
             </div>
             <div class="content-area">
-                <div class="pdf-container">
-                    <img class="pdf-img" src="{{.CurrentPagePath}}" fetchpriority="high" alt="PDF Page">
+                <!-- 現在のページ -->
+                <div class="document-container">
+                    <img class="document-img" src="{{.CurrentPagePath}}" fetchpriority="high" alt="Document Page">
                 </div>
                 <div class="navigation">
                     {{ if .BackShow }}
-                        <a href="/pdf/{{.BackPageNumber}}">前のページ</a>
+                        <a href="/document/{{.BackPageNumber}}">back page</a>
                     {{ end }}
                     {{ if .NextShow }}
-                        <a href="/pdf/{{.NextPageNumber}}">次のページ</a>
+                        <a href="/document/{{.NextPageNumber}}">next page</a>
                     {{ end }}
                 </div>
             </div>

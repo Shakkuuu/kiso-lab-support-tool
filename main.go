@@ -11,14 +11,17 @@ import (
 )
 
 func main() {
+	// 実行時のフラグでManagementページへアクセスする際のBasic認証のユーザ名&パスワードと、サーバ起動ポートを指定
 	userNameFlag := flag.String("user", "user", "BasicAuth user flag")
 	passwordFlag := flag.String("password", "password", "BasicAuth password flag")
 	portFlag := flag.Int("port", 8080, "Port flag")
 
 	flag.Parse()
 
+	// 分割されてjpgに変換されたページを入れておくディレクトリの存在確認
 	_, err := os.Stat(controller.CutDirName)
 	if err != nil {
+		// なければ作成
 		err = os.Mkdir(controller.CutDirName, 0444)
 		if err != nil {
 			log.Printf("[error] main os.Mkdir cut: %v\n", err)
@@ -26,17 +29,21 @@ func main() {
 		}
 	}
 
-	_, err = os.Stat(controller.ViewPDFDirName)
+	// クライアントに表示させるページのjpgファイルを入れておくディレクトリの存在確認
+	_, err = os.Stat(controller.ViewDocumentDirName)
 	if err != nil {
-		err = os.Mkdir(controller.ViewPDFDirName, 0444)
+		// なければ作成
+		err = os.Mkdir(controller.ViewDocumentDirName, 0444)
 		if err != nil {
-			log.Printf("[error] main os.Mkdir view-pdf: %v\n", err)
+			log.Printf("[error] main os.Mkdir view-document: %v\n", err)
 			os.Exit(1)
 		}
 	}
 
+	// アップロードされる元のPDFファイルを入れておくディレクトリの存在確認
 	_, err = os.Stat(controller.UpLoadDirName)
 	if err != nil {
+		// なければ作成
 		err = os.Mkdir(controller.UpLoadDirName, 0444)
 		if err != nil {
 			log.Printf("[error] main os.Mkdir upload: %v\n", err)
@@ -44,7 +51,8 @@ func main() {
 		}
 	}
 
-	cuts, err := filepath.Glob(controller.CutDirPath + "/*.pdf")
+	// cutディレクトリにjpgファイルが残っていれば削除
+	cuts, err := filepath.Glob(controller.CutDirPath + "/*.jpg")
 	if err != nil {
 		log.Printf("[error] main filepath.Glob cut : %v\n", err)
 		os.Exit(1)
@@ -58,20 +66,22 @@ func main() {
 		}
 	}
 
-	viewPDF, err := filepath.Glob(controller.ViewPDFDirPath + "/*.pdf")
+	// view-documentディレクトリにjpgファイルが残っていれば削除
+	viewDocuments, err := filepath.Glob(controller.ViewDocumentDirPath + "/*.jpg")
 	if err != nil {
-		log.Printf("[error] main filepath.Glob view-pdf: %v\n", err)
+		log.Printf("[error] main filepath.Glob view-document: %v\n", err)
 		os.Exit(1)
-	} else if len(viewPDF) != 0 {
-		for _, f := range viewPDF {
+	} else if len(viewDocuments) != 0 {
+		for _, f := range viewDocuments {
 			err = os.Remove(f)
 			if err != nil {
-				log.Printf("[error] main os.Remove view-pdf: %v\n", err)
+				log.Printf("[error] main os.Remove view-document: %v\n", err)
 				os.Exit(1)
 			}
 		}
 	}
 
+	// uploadディレクトリにpdfファイルが残っていれば削除
 	upload, err := filepath.Glob(controller.UpLoadDirPath + "/*.pdf")
 	if err != nil {
 		log.Printf("[error] main filepath.Glob upload: %v\n", err)
@@ -86,7 +96,9 @@ func main() {
 		}
 	}
 
+	// DB接続
 	db.Init()
 
+	// サーバ起動
 	server.Init(*userNameFlag, *passwordFlag, *portFlag)
 }

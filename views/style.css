@@ -137,13 +137,13 @@ button:hover {
     align-items: center;
 }
 
-.pdf-container {
+.document-container {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
 }
 
-.pdf-img {
+.document-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -155,7 +155,7 @@ button:hover {
     margin-bottom: 10px;
 }
 
-.pdf-preview-container {
+.document-preview-container {
     display: none;
     flex-direction: column;
     align-items: flex-start;
@@ -164,7 +164,7 @@ button:hover {
     overflow-y: auto;
 }
 
-.pdf-img-preview {
+.document-img-preview {
     width: 100%;
     height: auto;
     margin-bottom: 10px;
