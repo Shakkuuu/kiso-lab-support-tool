@@ -146,7 +146,7 @@ func (mc MessageController) AddMessage(c echo.Context) error {
 	}
 
 	// メッセージが追加されたことを、Messageページを開いているクライアントに告知（SSE送信）
-	SendEvent("update")
+	SendEvent("MessageUpdate")
 
 	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
 		"Message":     fmt.Sprintln("メッセージの送信に成功しました。"),
@@ -180,7 +180,7 @@ func (mc MessageController) DeleteMessage(c echo.Context) error {
 	}
 
 	// メッセージが削除されたことを、Messageページを開いているクライアントに告知（SSE送信）
-	SendEvent("update")
+	SendEvent("MessageUpdate")
 
 	// Messageページにリダイレクト
 	return c.Redirect(http.StatusOK, "/message")

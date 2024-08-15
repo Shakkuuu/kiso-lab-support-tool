@@ -9,9 +9,9 @@
         document.addEventListener("DOMContentLoaded", function() {
             // SSEクライアントに参加
             var eventSource = new EventSource("/sse");
-            // バックエンドサーバから"update"というSSEが届いたらページをリロードする。
+            // バックエンドサーバから"MessageUpdate"というSSEが届いたらページをリロードする。
             eventSource.onmessage = function(event) {
-                if (event.data === "update") {
+                if (event.data === "MessageUpdate") {
                     location.reload();
                 }
             };

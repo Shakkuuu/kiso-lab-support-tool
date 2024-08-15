@@ -78,7 +78,6 @@ go run main.go -user user -password password -port 8080
 - 質問機能
 - gzip化してリクエスト数を減らす
 - ハンバーガー内の画像はハンバーガー開かれるまで読み込まないようにしたい
-- SSEをどっちもupdateにしてるから、どっちもリロードされちゃう？
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
@@ -112,5 +111,6 @@ go run main.go -user user -password password -port 8080
 - リクエスト数は減らせてないが、ログを分けてとりあえず対応
 - dockerfileサイズ削減する ok
 - 開発者モードからDelete見えない？メッセージのIDとか ok大丈夫
+- SSEをどっちもupdateにしてるから、どっちもリロードされちゃう？ 修正ok
 
 docker image build --platform linux/amd64 -t kiso-lab-support-tool .

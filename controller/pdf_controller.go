@@ -211,7 +211,7 @@ func (dc DocumentController) ChangeMaxPage(c echo.Context) error {
 	fmt.Printf("The maximum page has been updated. %d\n", maxPage)
 
 	// 最大ページを更新したことを、Documentページを開いているクライアントに告知（SSE送信）
-	SendEvent("update")
+	SendEvent("DocumentUpdate")
 
 	// HTMLテンプレートのFormの最大ページのinputのvalue用にmaxPageを渡している
 	return c.Render(http.StatusOK, "management.html", map[string]interface{}{
