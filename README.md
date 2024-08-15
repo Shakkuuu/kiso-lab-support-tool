@@ -76,8 +76,7 @@ go run main.go -user user -password password -port 8080
 ## メモ
 
 - 質問機能
-- gzip化してリクエスト数を減らす
-- ハンバーガー内の画像はハンバーガー開かれるまで読み込まないようにしたい
+- ページ送りのたびにSSEクライアントに参加しているため、たまに読み込みがものすごく遅くなる
 - 汎用的CSSを使って、見た目よく ok
 - Dockerfileで自動でサーバー起動するように ok
 - 自動サーバー起動時にパスワードのフラグどうするか ok
@@ -112,5 +111,7 @@ go run main.go -user user -password password -port 8080
 - dockerfileサイズ削減する ok
 - 開発者モードからDelete見えない？メッセージのIDとか ok大丈夫
 - SSEをどっちもupdateにしてるから、どっちもリロードされちゃう？ 修正ok
+- ハンバーガー内の画像はハンバーガー開かれるまで読み込まないようにしたい ok
+- gzip化してリクエスト数を減らす no
 
 docker image build --platform linux/amd64 -t kiso-lab-support-tool .

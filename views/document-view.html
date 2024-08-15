@@ -15,12 +15,21 @@
                     location.reload();
                 }
             };
+
+            // ハンバーガーメニューを開いたタイミングでimgを読み込むように管理
+            const images = document.querySelectorAll('.document-img-preview');
             // ハンバーガーメニューのクリックイベント管理
             document.getElementById("hamburger-menu").addEventListener("click", function() {
                     var previewContainer = document.getElementById("document-preview-container");
                     if (previewContainer.style.display === "none" || previewContainer.style.display === "") {
+                        // 表示
                         previewContainer.style.display = "flex";
+                        // 各プレビューのimgにsrcを設定して画像の遅延読み込み
+                        images.forEach(image => {
+                            image.src = image.dataset.src;
+                        });
                     } else {
+                        // 隠す
                         previewContainer.style.display = "none";
                     }
             });
@@ -39,7 +48,7 @@
                 <div id="document-preview-container" class="document-preview-container">
                     {{ range $v := .PagePathList }}
                         <p><a href="/document/{{$v.Number}}">page {{$v.Number}}</a></p>
-                        <img class="document-img-preview" src="{{$v.Path}}" alt="Document Preview Page">
+                        <img class="document-img-preview" data-src="{{$v.Path}}" alt="Document Preview Page {{$v.Number}}">
                     {{ end }}
                 </div>
             </div>
