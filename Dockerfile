@@ -32,6 +32,9 @@ COPY --from=builder /app /app
 # 環境変数を設定
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV USER_ENV="user"
+ENV PASSWORD_ENV="password"
+ENV PORT_ENV=8080
 
 WORKDIR /app
 
